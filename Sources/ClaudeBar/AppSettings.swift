@@ -68,6 +68,7 @@ final class AppSettings {
         static let menuBarPercentageSelection = "menuBarPercentageSelection"
         static let fuelTankMode = "fuelTankMode"
         static let showMenuBarFlame = "showMenuBarFlame"
+        static let showMenuBarCountdown = "showMenuBarCountdown"
         static let celebrationsEnabled = "celebrationsEnabled"
         static let credentialSource = "credentialSource"
         static let telemetryEnabled = "telemetryEnabled"
@@ -92,6 +93,11 @@ final class AppSettings {
     /// Whether the menu-bar icon shows the 🔥 flame when a limit is burning over pace.
     var showMenuBarFlame: Bool {
         didSet { defaults.set(showMenuBarFlame, forKey: Keys.showMenuBarFlame) }
+    }
+
+    /// Whether the menu-bar icon shows the time left until the displayed limit resets.
+    var showMenuBarCountdown: Bool {
+        didSet { defaults.set(showMenuBarCountdown, forKey: Keys.showMenuBarCountdown) }
     }
 
     /// Off by default (percentages count up as usage). On flips every percentage and
@@ -220,6 +226,7 @@ final class AppSettings {
             Keys.menuBarPercentageSelection: MenuBarPercentageSelection.highest.rawValue,
             Keys.fuelTankMode: false,
             Keys.showMenuBarFlame: true,
+            Keys.showMenuBarCountdown: false,
             Keys.celebrationsEnabled: false,
             Keys.credentialSource: CredentialSource.claudeCode.rawValue,
             Keys.telemetryEnabled: false,
@@ -241,6 +248,7 @@ final class AppSettings {
         )
         fuelTankMode = defaults.bool(forKey: Keys.fuelTankMode)
         showMenuBarFlame = defaults.bool(forKey: Keys.showMenuBarFlame)
+        showMenuBarCountdown = defaults.bool(forKey: Keys.showMenuBarCountdown)
         celebrationsEnabled = defaults.bool(forKey: Keys.celebrationsEnabled)
         credentialSource = defaults.string(forKey: Keys.credentialSource)
             .flatMap(CredentialSource.init(rawValue:)) ?? .claudeCode

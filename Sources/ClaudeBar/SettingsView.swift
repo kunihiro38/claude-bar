@@ -76,6 +76,12 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
+                Toggle("Show time until reset", isOn: $settings.showMenuBarCountdown)
+
+                Text("Adds the countdown for the displayed limit next to the percentage, e.g. \"31% · 4h 0m\".")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
                 Toggle("Show 🔥 when burning over pace", isOn: $settings.showMenuBarFlame)
 
                 Text("The flame appears next to the percentage when a limit burns faster than its window's steady pace. Weekly (all models) turns a deeper red; the session and model-scoped windows stay orange.")

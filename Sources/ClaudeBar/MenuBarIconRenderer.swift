@@ -23,7 +23,7 @@ enum MenuBarIconRenderer {
     /// `flameColor` nil means no pace flame at all (on pace, or the menu-bar flame
     /// switched off in settings). When non-nil it also picks the flame's colour, so
     /// weekly over-pace can read hotter than a session/scoped one.
-    static func image(percent: Int?, severity: Severity, flameColor: NSColor?) -> NSImage {
+    static func image(percent: Int?, severity: Severity, flameColor: NSColor?, countdown: String? = nil) -> NSImage {
         let symbolImage: NSImage? = claudeMark
 
         // No percent means no pace signal either — there's nothing to be "ahead" of.
@@ -37,7 +37,7 @@ enum MenuBarIconRenderer {
         let tint = tintColor(for: severity)
         let renderedSymbol = symbolImage.map { isTemplate ? $0 : tinted($0, color: tint) }
 
-        let text = percent.map { " \($0)%" }
+        let text = percent.map { p in " \(p)%" + (countdown.map { " · \($0)" } ?? "") }
         let font = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .medium)
         let textColor: NSColor = isTemplate ? .labelColor : tint
         let attributedText = text.map {
@@ -146,7 +146,8 @@ struct MenuBarLabelView: View {
             // actual usage, so a nearly-empty tank still reads warning/critical.
             percent: displayedLimit.map { Int(settings.usageDisplayMode.displayPercent(usedPercent: $0.percent).rounded()) },
             severity: displayedLimit.map { settings.thresholds.resolve(for: $0) } ?? .normal,
-            flameColor: flameColor
+            flameColor: flameColor,
+            countdown: settings.showMenuBarCountdown ? displayedLimit.flatMap(countdown(for:)) : nil
         ))
         .onAppear {
             model.attachCelebrations(settings: settings, controller: celebrations)
@@ -155,6 +156,14 @@ struct MenuBarLabelView: View {
             let openSettings = openSettings
             router.attach(settings: settings, openSettings: { openSettings() })
         }
+    }
+
+    /// Compact countdown for the menu bar ("4h 0m"), reusing the dropdown's formatter
+    /// minus its leading "in ". Refreshes with each 60s poll re-render.
+    private func countdown(for limit: UsageLimit) -> String? {
+        guard let resetsAt = limit.resetsAt else { return nil }
+        let text = ResetFormatting.countdownString(until: resetsAt, now: Date())
+        return text.hasPrefix("in ") ? String(text.dropFirst(3)) : text
     }
 
     /// The flame is a burn-rate warning, not a property of the leading limit: fire it
